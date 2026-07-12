@@ -16,47 +16,40 @@
 import { StateVisualizer } from "@/components/games/StateVisualizer";
 import { WorkshopLayout } from "@/components/layout/WorkshopLayout";
 import { CodeBlock } from "@/components/ui/CodeBlock";
+import { LockedDayOverlay } from "@/components/ui/LockedDayOverlay";
 import { ProTip } from "@/components/ui/ProTip";
 import { Section } from "@/components/ui/Section";
+import { SectionJump } from "@/components/ui/SectionJump";
 import { Warning } from "@/components/ui/Warning";
+import { DAY2_DATE } from "@/config/workshopState";
 import { useDay2Unlocked } from "@/hooks/useDay2Unlocked";
-import Link from "next/link";
+
+const DAY2_TOPICS = [
+  { id: "use-state", label: "useState — Interactivity" },
+  { id: "use-effect-fetch", label: "useEffect & Fetch — APIs" },
+  { id: "git-deploy", label: "Git, GitHub & Vercel" },
+];
 
 export default function Day2Page() {
   const day2Unlocked = useDay2Unlocked();
 
-  // Show locked screen if Day 2 is not yet available.
+  // Frosted-glass lock screen until config or /admin localStorage unlocks Day 2.
   if (!day2Unlocked) {
     return (
       <WorkshopLayout>
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-950/40">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-amber-600 dark:text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-            </svg>
-          </div>
-          <h1 className="mb-3 text-2xl font-bold text-zinc-900 dark:text-zinc-100">
-            Day 2 is locked until tomorrow!
-          </h1>
-          <p className="max-w-md text-zinc-600 dark:text-zinc-400">
-            Come back tomorrow morning when your facilitator unlocks Day 2
-            content. In the meantime, make sure your Day 1 profile card project
-            is saved!
-          </p>
-          <Link
-            href="/day-1"
-            className="mt-6 text-sm font-medium text-[#9B191F] hover:underline"
-          >
-            ← Back to Day 1
-          </Link>
-        </div>
+        <LockedDayOverlay
+          title={`Day 2 is locked until ${DAY2_DATE}!`}
+          description={`Come back on ${DAY2_DATE} when your facilitator unlocks Day 2 content. In the meantime, make sure your Day 1 profile card project is saved!`}
+          backHref="/day-1"
+          backLabel="← Back to Day 1"
+        />
       </WorkshopLayout>
     );
   }
 
   return (
     <WorkshopLayout>
+      <SectionJump sections={DAY2_TOPICS} />
       <div className="mb-8">
         <p className="mb-2 text-sm font-semibold uppercase tracking-wider text-[#9B191F]">
           Day 2

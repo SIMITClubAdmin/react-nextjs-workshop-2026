@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Client-side hook that determines whether Day 2 is accessible.
+ * Client-side hook that determines whether Day 1 is accessible.
  *
  * Priority order:
  * 1. localStorage override (set via /admin page) — per-browser only
@@ -10,20 +10,20 @@
 
 import { useEffect, useState } from "react";
 import {
-  DAY2_STORAGE_KEY,
+  DAY1_STORAGE_KEY,
   WORKSHOP_UNLOCK_EVENT,
-  isDay2Unlocked as configDay2Unlocked,
+  isDay1Unlocked as configDay1Unlocked,
 } from "@/config/workshopState";
 
 function readUnlocked(): boolean {
-  const stored = localStorage.getItem(DAY2_STORAGE_KEY);
+  const stored = localStorage.getItem(DAY1_STORAGE_KEY);
   if (stored === "true") return true;
   if (stored === "false") return false;
-  return configDay2Unlocked;
+  return configDay1Unlocked;
 }
 
-export function useDay2Unlocked(): boolean {
-  const [unlocked, setUnlocked] = useState(configDay2Unlocked);
+export function useDay1Unlocked(): boolean {
+  const [unlocked, setUnlocked] = useState(configDay1Unlocked);
 
   useEffect(() => {
     setUnlocked(readUnlocked());
@@ -31,7 +31,7 @@ export function useDay2Unlocked(): boolean {
     const sync = () => setUnlocked(readUnlocked());
 
     const handleStorage = (e: StorageEvent) => {
-      if (e.key === DAY2_STORAGE_KEY || e.key === null) sync();
+      if (e.key === DAY1_STORAGE_KEY || e.key === null) sync();
     };
 
     window.addEventListener("storage", handleStorage);

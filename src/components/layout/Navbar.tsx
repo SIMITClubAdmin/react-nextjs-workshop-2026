@@ -1,22 +1,33 @@
 "use client";
 
 /**
- * Navbar — top bar with workshop title and theme toggle.
- * Stays fixed at the top while students scroll through long lessons.
+ * Navbar — sticky glass header with workshop branding + theme toggle.
+ * Glassmorphism: backdrop-blur + translucent surface (brief design system).
  */
 
+import Image from "next/image";
+import Link from "next/link";
 import { ThemeToggle } from "./ThemeToggle";
 
 export function Navbar() {
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-zinc-200 bg-white/80 px-4 backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-950/80 lg:px-6">
-      <div className="flex items-center gap-3">
-        {/* SIM Red accent dot */}
-        <span className="inline-block h-3 w-3 rounded-full bg-[#9B191F]" />
-        <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-          Workshop Companion Hub
+    <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-black/10 bg-white/70 px-4 backdrop-blur-md dark:border-white/10 dark:bg-black/60 lg:px-6">
+      <Link
+        href="/"
+        className="flex min-w-0 items-center gap-2.5 rounded-md outline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#9B191F]"
+      >
+        <Image
+          src="/brand/react-workshop-series.png"
+          alt=""
+          width={40}
+          height={27}
+          className="h-7 w-auto shrink-0"
+          priority
+        />
+        <span className="truncate text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+          React Workshop Series
         </span>
-      </div>
+      </Link>
       <ThemeToggle />
     </header>
   );

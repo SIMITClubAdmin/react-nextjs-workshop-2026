@@ -1,8 +1,14 @@
+"use client";
+
 /**
  * Day 1 Page (/day-1)
  *
+ * Locked by default — only accessible when:
+ *   - isDay1Unlocked is true in workshopState.ts, OR
+ *   - localStorage day1_unlocked === 'true' (via /admin)
+ *
  * Three sections:
- *   1. Project Setup (create-next-app)
+ *   1. Project Setup Time (create-next-app, JS only)
  *   2. Components & Props (with BubbleTeaBuilder game)
  *   3. Tailwind CSS Styling
  *
@@ -12,13 +18,40 @@
 import { BubbleTeaBuilder } from "@/components/games/BubbleTeaBuilder";
 import { WorkshopLayout } from "@/components/layout/WorkshopLayout";
 import { CodeBlock } from "@/components/ui/CodeBlock";
+import { LockedDayOverlay } from "@/components/ui/LockedDayOverlay";
 import { ProTip } from "@/components/ui/ProTip";
 import { Section } from "@/components/ui/Section";
+import { SectionJump } from "@/components/ui/SectionJump";
 import { Warning } from "@/components/ui/Warning";
+import { ProjectSetupSection } from "@/components/workshop/ProjectSetupSection";
+import { DAY1_DATE, DAY2_DATE } from "@/config/workshopState";
+import { useDay1Unlocked } from "@/hooks/useDay1Unlocked";
+
+const DAY1_TOPICS = [
+  { id: "project-setup", label: "Project Setup Time" },
+  { id: "components-props", label: "Components & Props" },
+  { id: "tailwind-styling", label: "Tailwind CSS Styling" },
+];
 
 export default function Day1Page() {
+  const day1Unlocked = useDay1Unlocked();
+
+  if (!day1Unlocked) {
+    return (
+      <WorkshopLayout>
+        <LockedDayOverlay
+          title={`Day 1 is locked until ${DAY1_DATE}!`}
+          description={`You can explore the home page and install the prerequisites now. Your facilitator will unlock Day 1 on ${DAY1_DATE}.`}
+          backHref="/"
+          backLabel="← Back to Home"
+        />
+      </WorkshopLayout>
+    );
+  }
+
   return (
     <WorkshopLayout>
+      <SectionJump sections={DAY1_TOPICS} />
       <div className="mb-8">
         <p className="mb-2 text-sm font-semibold uppercase tracking-wider text-[#9B191F]">
           Day 1
@@ -32,48 +65,8 @@ export default function Day1Page() {
         </p>
       </div>
 
-      {/* ── Section 1: Project Setup ── */}
-      <Section id="project-setup" number={1} title="Project Setup">
-        <p>
-          First, we need to create a new Next.js project. Open your{" "}
-          <strong>Terminal</strong> in VS Code (menu: View → Terminal) and run
-          this command:
-        </p>
-
-        <CodeBlock
-          language="bash"
-          title="Terminal"
-          code={`npx create-next-app@latest my-profile-card`}
-        />
-
-        <p>When prompted, choose these options:</p>
-        <ul className="list-inside list-disc space-y-1 text-sm">
-          <li>TypeScript → <strong>Yes</strong></li>
-          <li>ESLint → <strong>Yes</strong></li>
-          <li>Tailwind CSS → <strong>Yes</strong></li>
-          <li>App Router → <strong>Yes</strong></li>
-        </ul>
-
-        <p>Then start the development server:</p>
-
-        <CodeBlock
-          language="bash"
-          title="Terminal"
-          code={`cd my-profile-card
-npm run dev`}
-        />
-
-        <ProTip>
-          Open <strong>http://localhost:3000</strong> in your browser. You
-          should see the default Next.js welcome page. If you see an error,
-          make sure you ran <code>cd my-profile-card</code> first!
-        </ProTip>
-
-        <Warning title="Terminal says 'command not found'?">
-          You probably forgot to install Node.js. Go back to the Home page
-          prerequisites and install it from nodejs.org, then restart VS Code.
-        </Warning>
-      </Section>
+      {/* ── Section 1: Project Setup Time ── */}
+      <ProjectSetupSection />
 
       {/* ── Section 2: Components & Props ── */}
       <Section id="components-props" number={2} title="Components & Props">
@@ -86,20 +79,14 @@ npm run dev`}
         <p>
           Let us create a simple Profile Card component. Create a new file at{" "}
           <code className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-xs dark:bg-zinc-800">
-            src/components/ProfileCard.tsx
+            src/components/ProfileCard.jsx
           </code>
           :
         </p>
 
         <CodeBlock
-          title="ProfileCard.tsx"
-          code={`interface ProfileCardProps {
-  name: string;
-  title: string;
-  bio: string;
-}
-
-export function ProfileCard({ name, title, bio }: ProfileCardProps) {
+          title="ProfileCard.jsx"
+          code={`export function ProfileCard({ name, title, bio }) {
   return (
     <div>
       <h2>{name}</h2>
@@ -115,7 +102,7 @@ export function ProfileCard({ name, title, bio }: ProfileCardProps) {
         </p>
 
         <CodeBlock
-          title="page.tsx"
+          title="page.js"
           code={`import { ProfileCard } from "@/components/ProfileCard";
 
 export default function Home() {
@@ -150,8 +137,8 @@ export default function Home() {
         <p>Update your ProfileCard with Tailwind classes:</p>
 
         <CodeBlock
-          title="ProfileCard.tsx"
-          code={`export function ProfileCard({ name, title, bio }: ProfileCardProps) {
+          title="ProfileCard.jsx"
+          code={`export function ProfileCard({ name, title, bio }) {
   return (
     <div className="max-w-sm rounded-2xl bg-white p-6 shadow-lg">
       <div className="mb-4 h-20 w-20 rounded-full bg-blue-500" />
@@ -182,7 +169,7 @@ export default function Home() {
           </p>
           <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
             You now have a styled Personal Profile Card. Save your project —
-            we will continue building on it tomorrow in Day 2!
+            we will continue building on it on {DAY2_DATE} in Day 2!
           </p>
         </div>
       </Section>

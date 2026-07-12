@@ -9,9 +9,29 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Workshop Companion Hub | React & Next.js",
+  title: "React Workshop Series | React & Next.js",
   description:
     "Step-by-step interactive guide for the 2-day React & Next.js workshop.",
+  openGraph: {
+    title: "React Workshop Series",
+    description:
+      "Step-by-step interactive guide for the 2-day React & Next.js workshop.",
+    images: [
+      {
+        url: "/brand/react-workshop-series.png",
+        width: 317,
+        height: 215,
+        alt: "React Workshop Series logo",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary",
+    title: "React Workshop Series",
+    description:
+      "Step-by-step interactive guide for the 2-day React & Next.js workshop.",
+    images: ["/brand/react-workshop-series.png"],
+  },
 };
 
 export default function RootLayout({

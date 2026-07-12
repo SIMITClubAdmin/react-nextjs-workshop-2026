@@ -1,8 +1,8 @@
 /**
- * ProTip — a friendly callout for helpful hints and best practices.
- * Styled with SIM Red to match the workshop brand.
+ * ProTip — friendly callout for helpful hints and best practices.
  *
- * Use this for tips like "Save your file before checking the browser!"
+ * Brief styling: soft red background + thick #9B191F left border.
+ * Adapts opacities for light/dark mode.
  */
 
 import type { ReactNode } from "react";
@@ -14,7 +14,7 @@ interface ProTipProps {
 
 export function ProTip({ children, title = "Pro Tip" }: ProTipProps) {
   return (
-    <div className="my-4 flex gap-3 rounded-xl border border-[#9B191F]/20 bg-[#9B191F]/5 p-4 dark:border-[#9B191F]/30 dark:bg-[#9B191F]/10">
+    <div className="my-4 flex gap-3 rounded-xl border border-black/10 border-l-4 border-l-[#9B191F] bg-[#9B191F]/5 p-4 dark:border-white/10 dark:border-l-[#9B191F] dark:bg-[#9B191F]/10">
       <span className="mt-0.5 shrink-0 text-[#9B191F]" aria-hidden="true">
         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="10" />

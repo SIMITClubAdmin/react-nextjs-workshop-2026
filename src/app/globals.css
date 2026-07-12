@@ -56,3 +56,312 @@ html {
 [id] {
   scroll-margin-top: 5rem;
 }
+
+/* Admin discovery celebration entrance */
+@keyframes celebrate-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.72) translateY(16px);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.06) translateY(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes celebrate-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes celebrate-fall {
+  0% {
+    opacity: 1;
+    transform: translate3d(0, -20px, 0) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--drift, 20px), 100vh, 0)
+      rotate(var(--piece-rotate, 180deg));
+  }
+}
+
+.celebrate-hero {
+  animation: celebrate-pop 0.7s cubic-bezier(0.22, 1.2, 0.36, 1) both;
+}
+
+.celebrate-copy {
+  animation: celebrate-fade-up 0.55s ease-out 0.15s both;
+}
+
+.celebrate-cards {
+  animation: celebrate-fade-up 0.55s ease-out 0.3s both;
+}
+
+.celebrate-burst {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  overflow: hidden;
+}
+
+.celebrate-piece {
+  position: absolute;
+  top: -12px;
+  width: 10px;
+  height: 14px;
+  border-radius: 2px;
+  opacity: 0;
+  animation-name: celebrate-fall;
+  animation-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
+  animation-fill-mode: forwards;
+}
+
+.celebrate-piece:nth-child(odd) {
+  --drift: -40px;
+  width: 8px;
+  height: 10px;
+}
+
+.celebrate-piece:nth-child(even) {
+  --drift: 36px;
+}
+
+.celebrate-piece:nth-child(3n) {
+  width: 12px;
+  height: 8px;
+  border-radius: 999px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .celebrate-hero,
+  .celebrate-copy,
+  .celebrate-cards,
+  .celebrate-piece {
+    animation: none;
+  }
+
+  .celebrate-burst {
+    display: none;
+  }
+}
+
+/* ── Bubble Tea CSS 3D scene ── */
+@keyframes boba-sway {
+  0%,
+  100% {
+    transform: rotateX(12deg) rotateY(-18deg) rotateZ(0deg);
+  }
+  50% {
+    transform: rotateX(14deg) rotateY(18deg) rotateZ(1deg);
+  }
+}
+
+@keyframes boba-pearl-settle {
+  0% {
+    transform: translateY(-18px) scale(0.6);
+    opacity: 0;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.boba-stage {
+  perspective: 900px;
+  perspective-origin: 50% 40%;
+  width: 220px;
+  height: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.boba-scene {
+  position: relative;
+  width: 140px;
+  height: 220px;
+  transform-style: preserve-3d;
+  animation: boba-sway 6s ease-in-out infinite;
+  transition: transform 0.35s ease;
+}
+
+.boba-stage:hover .boba-scene {
+  animation-play-state: paused;
+  transform: rotateX(10deg) rotateY(28deg) scale(1.04);
+}
+
+.boba-cup {
+  position: absolute;
+  left: 20px;
+  top: 36px;
+  width: 100px;
+  height: 150px;
+  transform-style: preserve-3d;
+}
+
+.boba-cup-back,
+.boba-cup-front {
+  position: absolute;
+  inset: 0;
+  border-radius: 12px 12px 28px 28px;
+  border: 2px solid rgba(148, 163, 184, 0.55);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.18),
+    rgba(255, 255, 255, 0.02)
+  );
+  backdrop-filter: blur(1px);
+}
+
+.boba-cup-back {
+  transform: translateZ(-14px);
+  background: linear-gradient(
+    180deg,
+    rgba(148, 163, 184, 0.25),
+    rgba(148, 163, 184, 0.08)
+  );
+}
+
+.boba-cup-front {
+  transform: translateZ(14px);
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0.35) 0%,
+    rgba(255, 255, 255, 0.05) 40%,
+    rgba(255, 255, 255, 0.12) 100%
+  );
+  box-shadow: inset -10px 0 18px rgba(255, 255, 255, 0.15);
+}
+
+.boba-cup-shine {
+  position: absolute;
+  top: 16px;
+  left: 14px;
+  width: 14px;
+  height: 70%;
+  border-radius: 999px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.55),
+    rgba(255, 255, 255, 0)
+  );
+  transform: translateZ(16px);
+  pointer-events: none;
+}
+
+.boba-liquid {
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  bottom: 8px;
+  height: 72%;
+  border-radius: 8px 8px 22px 22px;
+  transform: translateZ(0);
+  overflow: hidden;
+  transition:
+    background 0.45s ease,
+    opacity 0.35s ease,
+    box-shadow 0.35s ease;
+}
+
+.boba-pearls {
+  position: absolute;
+  inset: auto 4px 8px 4px;
+  height: 28px;
+}
+
+.boba-pearl {
+  position: absolute;
+  bottom: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 30% 30%, #52525b, #18181b 70%);
+  box-shadow: 1px 2px 3px rgba(0, 0, 0, 0.35);
+  animation: boba-pearl-settle 0.55s ease-out both;
+}
+
+.boba-lid {
+  position: absolute;
+  left: 8px;
+  top: 18px;
+  width: 124px;
+  height: 28px;
+  transform-style: preserve-3d;
+  transform: translateZ(8px);
+}
+
+.boba-lid-top {
+  position: absolute;
+  inset: 0 8px auto;
+  height: 16px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #a1a1aa, #71717a);
+  transform: translateZ(6px);
+}
+
+.boba-lid-rim {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 12px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #d4d4d8, #a1a1aa);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.boba-straw {
+  position: absolute;
+  right: 34px;
+  top: 0;
+  width: 10px;
+  height: 110px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #fb7185, #9b191f 45%, #fda4af);
+  transform: translateZ(22px) rotateZ(8deg);
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.boba-shadow {
+  position: absolute;
+  left: 30px;
+  bottom: 4px;
+  width: 80px;
+  height: 16px;
+  border-radius: 999px;
+  background: radial-gradient(ellipse, rgba(0, 0, 0, 0.28), transparent 70%);
+  transform: translateZ(-40px) rotateX(90deg);
+  filter: blur(2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .boba-scene {
+    animation: none;
+    transform: rotateX(12deg) rotateY(-12deg);
+  }
+
+  .boba-stage:hover .boba-scene {
+    transform: rotateX(12deg) rotateY(-12deg);
+  }
+
+  .boba-pearl {
+    animation: none;
+  }
+}

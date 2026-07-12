@@ -1,8 +1,8 @@
 /**
- * Warning — an amber callout for common beginner mistakes.
- * Helps reduce facilitator load by answering predictable questions.
+ * Warning — amber callout for common beginner mistakes.
  *
- * Examples: "Forgot to save?", "Missing 'use client'?", "Wrong folder?"
+ * Soft amber fill + thick #9B191F left border (brief), so warnings still feel
+ * on-brand while staying visually distinct from Pro Tips.
  */
 
 import type { ReactNode } from "react";
@@ -14,7 +14,7 @@ interface WarningProps {
 
 export function Warning({ children, title = "Watch Out!" }: WarningProps) {
   return (
-    <div className="my-4 flex gap-3 rounded-xl border border-amber-300 bg-amber-50 p-4 dark:border-amber-700 dark:bg-amber-950/40">
+    <div className="my-4 flex gap-3 rounded-xl border border-black/10 border-l-4 border-l-[#9B191F] bg-amber-50 p-4 dark:border-white/10 dark:border-l-[#9B191F] dark:bg-amber-950/40">
       <span className="mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" aria-hidden="true">
         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />

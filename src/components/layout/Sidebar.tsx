@@ -3,9 +3,11 @@
 /**
  * Sidebar — the main navigation for the workshop curriculum.
  *
- * Day 2 links are hidden until either:
- *   - An organizer flips isDay2Unlocked in workshopState.ts and redeploys, OR
- *   - An organizer visits /admin and unlocks Day 2 in localStorage (browser-only).
+ * Day 1 / Day 2 links are locked until either:
+ *   - An organizer flips isDay1Unlocked / isDay2Unlocked in workshopState.ts
+ *     and redeploys, OR
+ *   - An organizer visits /admin and unlocks that day in localStorage
+ *     (browser-only).
  *
  * On mobile, the sidebar slides in as a drawer toggled by the hamburger button.
  */
@@ -13,6 +15,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { DAY1_DATE, DAY2_DATE } from "@/config/workshopState";
+import { useDay1Unlocked } from "@/hooks/useDay1Unlocked";
 import { useDay2Unlocked } from "@/hooks/useDay2Unlocked";
 
 interface NavItem {
@@ -21,10 +25,12 @@ interface NavItem {
   locked?: boolean;
 }
 
-const mainNav: NavItem[] = [
-  { href: "/", label: "Home" },
-  { href: "/day-1", label: "Day 1 — Foundations" },
-];
+const homeNav: NavItem = { href: "/", label: "Home" };
+
+const day1Nav: NavItem = {
+  href: "/day-1",
+  label: "Day 1 — Foundations",
+};
 
 const day2Nav: NavItem = {
   href: "/day-2",
@@ -69,6 +75,7 @@ function NavLink({
 }
 
 export function Sidebar() {
+  const day1Unlocked = useDay1Unlocked();
   const day2Unlocked = useDay2Unlocked();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -76,18 +83,26 @@ export function Sidebar() {
 
   const sidebarContent = (
     <nav className="flex flex-col gap-1 p-4">
-      {mainNav.map((item) => (
-        <NavLink key={item.href} {...item} onClick={closeMobile} />
-      ))}
+      <NavLink {...homeNav} onClick={closeMobile} />
 
-      {/* Day 2 — conditionally shown or locked */}
+      {day1Unlocked ? (
+        <NavLink {...day1Nav} onClick={closeMobile} />
+      ) : (
+        <>
+          <NavLink {...day1Nav} locked />
+          <p className="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
+            Day 1 unlocks on {DAY1_DATE}!
+          </p>
+        </>
+      )}
+
       {day2Unlocked ? (
         <NavLink {...day2Nav} onClick={closeMobile} />
       ) : (
         <>
           <NavLink {...day2Nav} locked />
           <p className="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
-            Day 2 is locked until tomorrow!
+            Day 2 unlocks on {DAY2_DATE}!
           </p>
         </>
       )}
@@ -116,8 +131,8 @@ export function Sidebar() {
             className="absolute inset-0 bg-black/50"
             onClick={closeMobile}
           />
-          <aside className="absolute left-0 top-0 h-full w-72 bg-white shadow-xl dark:bg-zinc-900">
-            <div className="flex items-center justify-between border-b border-zinc-200 p-4 dark:border-zinc-800">
+          <aside className="absolute left-0 top-0 h-full w-72 border-r border-black/10 bg-white/80 shadow-xl backdrop-blur-md dark:border-white/10 dark:bg-black/70">
+            <div className="flex items-center justify-between border-b border-black/10 p-4 dark:border-white/10">
               <span className="font-semibold text-zinc-900 dark:text-zinc-100">Menu</span>
               <button
                 onClick={closeMobile}
@@ -136,7 +151,7 @@ export function Sidebar() {
       )}
 
       {/* Desktop sidebar */}
-      <aside className="hidden w-64 shrink-0 border-r border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 lg:block">
+      <aside className="hidden w-64 shrink-0 border-r border-black/10 bg-white/70 backdrop-blur-md dark:border-white/10 dark:bg-black/40 lg:block">
         <div className="sticky top-14 p-2">
           <p className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
             Curriculum
