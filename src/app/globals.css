@@ -192,6 +192,19 @@ html {
   justify-content: center;
 }
 
+.boba-stage--sm {
+  width: 160px;
+  height: 200px;
+  zoom: 0.72;
+}
+
+@supports not (zoom: 1) {
+  .boba-stage--sm {
+    transform: scale(0.72);
+    transform-origin: center center;
+  }
+}
+
 .boba-scene {
   position: relative;
   width: 140px;

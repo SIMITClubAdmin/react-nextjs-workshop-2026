@@ -281,9 +281,24 @@ npm run dev`}
           </li>
           <li>
             In VS Code: <strong>File → Open Folder…</strong> and select{" "}
-            <code>my-profile-card</code>
+            <code>my-profile-card</code>, or
+          </li>
+          <li>
+            From Command Prompt (in your workshop folder):
           </li>
         </ul>
+        <CodeBlock
+          language="bash"
+          title="Command Prompt"
+          code={`cd my-profile-card
+code .`}
+        />
+        <Warning title={`'code' is not recognized?`}>
+          Open VS Code once, press <strong>Ctrl + Shift + P</strong>, run{" "}
+          <strong>Shell Command: Install &apos;code&apos; command in PATH</strong>{" "}
+          (or reinstall VS Code and tick the PATH option), then open a{" "}
+          <strong>new</strong> CMD window and try again.
+        </Warning>
         <ProTip title="Windows tip">
           Save files with <strong>Ctrl + S</strong>. Next.js only refreshes
           after the file is actually saved.
@@ -465,9 +480,23 @@ npm run dev`}
           </li>
           <li>
             In VS Code: <strong>File → Open Folder…</strong> and select{" "}
-            <code>my-profile-card</code>
+            <code>my-profile-card</code>, or
+          </li>
+          <li>
+            From Terminal (in your workshop folder):
           </li>
         </ul>
+        <CodeBlock
+          language="bash"
+          title="macOS Terminal"
+          code={`cd my-profile-card
+code .`}
+        />
+        <Warning title="command not found: code?">
+          Open VS Code, press <strong>Cmd + Shift + P</strong>, run{" "}
+          <strong>Shell Command: Install &apos;code&apos; command in PATH</strong>
+          , then open a <strong>new</strong> Terminal and try again.
+        </Warning>
         <ProTip title="macOS tip">
           Save files with <strong>Cmd + S</strong>. Next.js only refreshes after
           the file is actually saved. You can also open Terminal inside VS Code
@@ -491,6 +520,9 @@ export function ProjectSetupSection() {
 
   return (
     <Section id="project-setup" number={1} title="Project Setup Time">
+      <p className="text-sm font-semibold uppercase tracking-wider text-[#9B191F]">
+        Topic 1 · start here
+      </p>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="!mb-0 text-sm text-zinc-500 dark:text-zinc-400">
           Pick your laptop OS — follow only that checklist.
