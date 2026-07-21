@@ -14,9 +14,50 @@ import {
   topicHref,
   type CurriculumTopic,
 } from "@/config/curriculum";
-import { DAY1_DATE, DAY2_DATE } from "@/config/workshopState";
+import {
+  DAY1_DATE,
+  DAY2_DATE,
+  DAY2_RECAP_UNLOCK_LABEL,
+} from "@/config/workshopState";
 import { useDay1Unlocked } from "@/hooks/useDay1Unlocked";
+import { useDay2RecapUnlocked } from "@/hooks/useDay2RecapUnlocked";
 import { useDay2Unlocked } from "@/hooks/useDay2Unlocked";
+
+function Day2UnlockHint() {
+  const [hintLevel, setHintLevel] = useState(0);
+
+  return (
+    <div className="relative overflow-hidden rounded-lg border border-dashed border-zinc-300 bg-gradient-to-br from-zinc-50 to-amber-50/80 px-3 py-2.5 dark:border-zinc-700 dark:from-zinc-900/80 dark:to-amber-950/20">
+      <p className="relative text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-500 dark:text-zinc-400">
+        Something is waiting
+      </p>
+      <p className="relative mt-1 text-xs leading-relaxed text-zinc-600 dark:text-zinc-300">
+        {hintLevel === 0 &&
+          "Day 2 is locked for now. Remember how folders under app become pages…"}
+        {hintLevel === 1 &&
+          "A folder named like a role can become a URL you type yourself — even if it is not in this menu."}
+        {hintLevel >= 2 && (
+          <>
+            Try visiting{" "}
+            <span className="font-mono font-bold text-[#9B191F] dark:text-red-300">
+              /admin
+            </span>{" "}
+            on this site.
+          </>
+        )}
+      </p>
+      {hintLevel < 2 && (
+        <button
+          type="button"
+          onClick={() => setHintLevel((level) => Math.min(level + 1, 2))}
+          className="relative mt-2 w-full rounded-md bg-white/90 px-2 py-1.5 text-center text-[11px] font-semibold text-zinc-700 shadow-sm transition-colors hover:bg-white dark:bg-black/30 dark:text-zinc-200 dark:hover:bg-black/50"
+        >
+          {hintLevel === 0 ? "Need a hint?" : "Still stuck? One more hint"}
+        </button>
+      )}
+    </div>
+  );
+}
 
 function DayTopicNav({
   day,
@@ -67,10 +108,14 @@ function DayTopicNav({
             Locked
           </span>
         </div>
-        {unlockDate && (
-          <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
-            Unlocks on {unlockDate}!
-          </p>
+        {day === "day-2" ? (
+          <Day2UnlockHint />
+        ) : (
+          unlockDate && (
+            <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
+              Unlocks on {unlockDate}!
+            </p>
+          )
         )}
       </div>
     );
@@ -153,8 +198,10 @@ function DayTopicNav({
 export function Sidebar() {
   const day1Unlocked = useDay1Unlocked();
   const day2Unlocked = useDay2Unlocked();
+  const day2RecapUnlocked = useDay2RecapUnlocked();
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
+
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const drawerRef = useRef<HTMLElement>(null);
@@ -216,6 +263,28 @@ export function Sidebar() {
         Home
       </Link>
 
+      <Link
+        href="/day-1-recap"
+        onClick={closeMobile}
+        className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors ${
+          pathname === "/day-1-recap"
+            ? "bg-[#9B191F] font-medium text-white"
+            : "text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+        }`}
+      >
+        <span
+          className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${
+            pathname === "/day-1-recap"
+              ? "bg-white/20 text-white"
+              : "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300"
+          }`}
+          aria-hidden
+        >
+          ★
+        </span>
+        <span>Day 1 — Recap</span>
+      </Link>
+
       <DayTopicNav
         day="day-1"
         dayLabel="Day 1 — Foundations"
@@ -224,6 +293,48 @@ export function Sidebar() {
         unlockDate={DAY1_DATE}
         onNavigate={closeMobile}
       />
+
+      {day2RecapUnlocked ? (
+        <Link
+          href="/day-2-recap"
+          onClick={closeMobile}
+          className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors ${
+            pathname === "/day-2-recap"
+              ? "bg-[#9B191F] font-medium text-white"
+              : "text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+          }`}
+        >
+          <span
+            className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${
+              pathname === "/day-2-recap"
+                ? "bg-white/20 text-white"
+                : "bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-300"
+            }`}
+            aria-hidden
+          >
+            ★
+          </span>
+          <span>Day 2 — Recap</span>
+        </Link>
+      ) : (
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-zinc-400 dark:text-zinc-600">
+            <span
+              className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-zinc-200 text-[10px] font-bold text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400"
+              aria-hidden
+            >
+              ★
+            </span>
+            <span className="min-w-0 flex-1">Day 2 — Recap</span>
+            <span className="text-xs text-amber-600 dark:text-amber-400">
+              Locked
+            </span>
+          </div>
+          <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
+            Unlocks {DAY2_RECAP_UNLOCK_LABEL}
+          </p>
+        </div>
+      )}
 
       <DayTopicNav
         day="day-2"

@@ -46,7 +46,7 @@ export function StateVisualizer() {
       // Step 3: show re-render
       timers.current.push(setTimeout(() => {
         setHighlighted("render");
-        setClickLog((prev) => [...prev, `Render → screen shows ${nextCount}`]);
+        setClickLog((prev) => [...prev, `Render → UI shows “Clicked ${nextCount} times”`]);
         timers.current.push(setTimeout(() => {
           setHighlighted("none");
           setAnimating(false);
@@ -100,9 +100,7 @@ export function StateVisualizer() {
               <span className="text-purple-400">  return</span>
               {" ("}
               {"\n"}
-              <span className={lineClass("render")}>
-                {"    <button onClick={() => {"}
-              </span>
+              {"    <button onClick={() => {"}
               {"\n"}
               <span className={lineClass("setCount")}>
                 {"      setCount(count + 1)"}
@@ -110,9 +108,11 @@ export function StateVisualizer() {
               {"\n"}
               {"    }}>"}
               {"\n"}
-              {"      Clicked "}
-              <span className="text-emerald-400">{`{count}`}</span>
-              {" times"}
+              <span className={lineClass("render")}>
+                {"      Clicked "}
+                <span className="text-emerald-400">{`{count}`}</span>
+                {" times"}
+              </span>
               {"\n"}
               {"    </button>"}
               {"\n"}

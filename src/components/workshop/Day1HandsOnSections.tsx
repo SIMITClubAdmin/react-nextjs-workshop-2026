@@ -310,7 +310,7 @@ export function HandsOn03Section() {
       title='Hands-on #03 — Adding an "About Me" Route'
     >
       <HandsOnBanner number={3} title='Adding an "About Me" Route'>
-        Create the folder route, link to it, and finally render your card.
+        Create the About page with ProfileCard first, then link to it from Home.
       </HandsOnBanner>
 
       <h3 className="text-lg font-semibold text-[#9B191F]">Exercise — part A</h3>
@@ -323,38 +323,6 @@ export function HandsOn03Section() {
         </li>
         <li>
           Create file:{" "}
-          <code className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-xs dark:bg-zinc-800">
-            src/app/about/page.js
-          </code>
-        </li>
-        <li>
-          In your main{" "}
-          <code className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-xs dark:bg-zinc-800">
-            page.js
-          </code>
-          , add a navigation button:
-        </li>
-      </ol>
-
-      <CodeBlock
-        title="src/app/page.js"
-        code={`import Link from "next/link";
-
-export default function Home() {
-  return (
-    <main className="min-h-screen bg-gray-100 p-8 text-gray-900">
-      <h1>My Workspace</h1>
-
-      <Link href="/about">Go to About Me</Link>
-    </main>
-  );
-}`}
-      />
-
-      <h3 className="text-lg font-semibold text-[#9B191F]">Exercise — part B</h3>
-      <ol className="list-inside list-decimal space-y-2 text-sm">
-        <li>
-          Go to{" "}
           <code className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-xs dark:bg-zinc-800">
             src/app/about/page.js
           </code>
@@ -373,7 +341,7 @@ export default function About() {
         name="Alex"
         title="Computer Science Student"
         desc="Learning React and Next.js!"
-        imageSrc="/profile.png"
+        imageSrc="/alex.png"
       />
     </main>
   );
@@ -387,9 +355,43 @@ export default function About() {
       </Warning>
 
       <p className="text-sm text-zinc-600 dark:text-zinc-400">
-        Test: click <strong>Go to About Me</strong>, or open{" "}
-        <code>http://localhost:3000/about</code>.
+        You can already open{" "}
+        <code>http://localhost:3000/about</code> to check the card. Next we add
+        a button on Home so you can click there.
       </p>
+
+      <h3 className="text-lg font-semibold text-[#9B191F]">Exercise — part B</h3>
+      <ol className="list-inside list-decimal space-y-2 text-sm">
+        <li>
+          Go to{" "}
+          <code className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-xs dark:bg-zinc-800">
+            src/app/page.js
+          </code>
+        </li>
+        <li>
+          Add a navigation button with{" "}
+          <code>&lt;Link href=&quot;/about&quot;&gt;</code>:
+        </li>
+      </ol>
+
+      <CodeBlock
+        title="src/app/page.js"
+        code={`import Link from "next/link";
+
+export default function Home() {
+  return (
+    <main className="min-h-screen bg-gray-100 p-8 text-gray-900">
+      <h1>My Workspace</h1>
+
+      <Link href="/about">Go to About Me</Link>
+    </main>
+  );
+}`}
+      />
+
+      <ol className="list-inside list-decimal space-y-2 text-sm" start={3}>
+        <li>Test the link by clicking <strong>Go to About Me</strong>.</li>
+      </ol>
 
       <DoneWhen>
         The Home link opens <code>/about</code>, where your own ProfileCard and

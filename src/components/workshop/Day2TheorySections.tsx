@@ -1,13 +1,19 @@
 /**
  * Day 2 teaching/theory pages.
- * These follow slides 1–44 and are intentionally separate from hands-on work.
+ * Sequence: Start Here → Git → Rendering → Hooks → useState → useEffect
+ * → (break) → Async → Events → Vercel. Hands-on stays separate.
  */
 
+import Link from "next/link";
 import {
   AsyncAwaitFlow,
+  CsrSsrCompareLab,
   EffectDependencyLab,
   EventHandlerPlayground,
+  GitPipelineLab,
   RenderingBoundaryLab,
+  RulesOfHooksLab,
+  VercelPipelineLab,
 } from "@/components/games/Day2LearningLabs";
 import { StateVisualizer } from "@/components/games/StateVisualizer";
 import { CodeBlock } from "@/components/ui/CodeBlock";
@@ -21,17 +27,147 @@ import {
 } from "@/components/workshop/Day2LessonKit";
 
 const snippet = (...lines: string[]) => lines.join("\n");
+const STARTER_ZIP_HREF = "/codes/my-profile-card.zip";
+
+export function StartHereTheorySection() {
+  return (
+    <Section id="start-here" number={0} title="Start Here — Get Ready">
+      <LessonMeta
+        slides="Preflight"
+        duration="~10 minutes"
+        outcome={
+          <>
+            Download the clean starter, run it locally, and personalize the
+            profile before the first Git commit.
+          </>
+        }
+      />
+
+      <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-800 dark:bg-emerald-950/30 sm:p-5">
+        <p className="text-sm font-semibold text-emerald-900 dark:text-emerald-200">
+          Quick Day 1 refresh
+        </p>
+        <p className="mt-1 text-sm text-emerald-800/90 dark:text-emerald-100/90">
+          Components, props, routing, and Tailwind built your profile card.
+          Today we add state, effects, data fetching, Git, and a live deploy.
+        </p>
+        <Link
+          href="/day-1-recap"
+          className="mt-3 inline-flex text-sm font-semibold text-[#9B191F] underline hover:no-underline dark:text-red-300"
+        >
+          Open Day 1 Recap →
+        </Link>
+      </div>
+
+      <div className="rounded-2xl border border-[#9B191F]/25 bg-[#9B191F]/5 p-6 text-center dark:border-[#9B191F]/40 dark:bg-[#9B191F]/10">
+        <p className="text-sm font-semibold uppercase tracking-wider text-[#9B191F]">
+          Clean starter project
+        </p>
+        <p className="mx-auto mt-2 max-w-lg text-sm text-zinc-600 dark:text-zinc-400">
+          Source only — no <code>node_modules</code>, no <code>.next</code>.
+          Everyone downloads this ZIP so the room starts from the same place.
+        </p>
+        <a
+          href={STARTER_ZIP_HREF}
+          download="my-profile-card.zip"
+          className="mt-5 inline-flex items-center justify-center gap-2 rounded-xl bg-[#9B191F] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[#9B191F]/25 transition-transform hover:scale-[1.02] hover:opacity-95 active:scale-[0.98]"
+        >
+          Download my-profile-card.zip
+        </a>
+        <p className="mt-3 text-xs text-zinc-500">About 84 KB · unzip, then npm install</p>
+      </div>
+
+      <h3 className="text-lg font-semibold text-[#9B191F] dark:text-red-300">
+        Why <code>npm install</code> after you unzip?
+      </h3>
+      <p className="text-sm">
+        The ZIP gives you <strong>your project files</strong> — pages, components,
+        styles, and a shopping list called <code>package.json</code>. It does{" "}
+        <strong>not</strong> include the big library folders that Next.js and React
+        need to actually run.
+      </p>
+      <ConceptGrid>
+        <ConceptCard eyebrow="In the ZIP" title="Your code + the list" tone="blue">
+          <code>src/</code>, <code>public/</code>, config files, and{" "}
+          <code>package.json</code> (names and versions of tools you need).
+        </ConceptCard>
+        <ConceptCard eyebrow="Missing on purpose" title="node_modules" tone="amber">
+          That folder holds Next.js, React, Tailwind, and other packages. It is
+          huge (hundreds of MB), different per computer, and rebuilt when you
+          install — so we leave it out of the download.
+        </ConceptCard>
+        <ConceptCard eyebrow="What install does" title="npm install" tone="green">
+          Reads <code>package.json</code>, downloads those packages from the
+          internet, and creates <code>node_modules</code> on your laptop. After
+          that, <code>npm run dev</code> can start the app.
+        </ConceptCard>
+      </ConceptGrid>
+      <Warning title="Opening the folder alone is not enough">
+        VS Code can show your files, but the browser still needs those installed
+        packages. Without <code>npm install</code>, <code>npm run dev</code> will
+        fail (often with “Cannot find module …” or a missing{" "}
+        <code>node_modules</code> error).
+      </Warning>
+
+      <h3 className="text-lg font-semibold text-[#9B191F] dark:text-red-300">
+        Setup checklist
+      </h3>
+      <ol className="list-inside list-decimal space-y-3 text-sm">
+        <li>
+          Unzip the file. You should see a folder named{" "}
+          <code>my-profile-card</code>.
+        </li>
+        <li>
+          Open that folder in VS Code (<strong>File → Open Folder…</strong>).
+        </li>
+        <li>
+          Open the integrated terminal and run <code>npm install</code> first
+          (wait until it finishes), then <code>npm run dev</code>:
+        </li>
+      </ol>
+      <CodeBlock
+        title="Terminal"
+        language="bash"
+        code={snippet("npm install", "npm run dev")}
+      />
+      <ol className="list-inside list-decimal space-y-3 text-sm" start={4}>
+        <li>
+          Visit{" "}
+          <code>http://localhost:3000/about</code> — you should see a sample
+          profile (Alex).
+        </li>
+        <li>
+          Personalize before Git: change the name, title, description, and photo
+          in <code>src/app/about/page.js</code> (and replace{" "}
+          <code>public/moe.png</code> if you have your own image).
+        </li>
+      </ol>
+
+      <Warning title="npm install is slow or fails?">
+        Stay on this page and raise your hand. Do not skip ahead to Git until{" "}
+        <code>npm run dev</code> works — a helper will unstick you so the room
+        can keep moving.
+      </Warning>
+
+      <ProTip title="Mixed attendance is fine">
+        Whether you finished Day 1 in the room or are catching up today, this ZIP
+        is the shared starting line. Personalize it, then we put it on GitHub
+        together.
+      </ProTip>
+    </Section>
+  );
+}
 
 export function RenderingTheorySection() {
   return (
     <Section
       id="rendering-fundamentals"
-      number={1}
+      number={2}
       title="Rendering — Server and Client"
     >
       <LessonMeta
         slides="1–8"
-        duration="~12 minutes"
+        duration="~10 minutes"
         outcome={
           <>
             Decide where a component belongs and know what{" "}
@@ -48,7 +184,7 @@ export function RenderingTheorySection() {
 
       <ConceptGrid>
         <ConceptCard
-          eyebrow="Classic CSR"
+          eyebrow="Classic CSR - Client-Side Rendering"
           title="The browser cooks the meal"
           tone="blue"
         >
@@ -57,7 +193,7 @@ export function RenderingTheorySection() {
           the device more work.
         </ConceptCard>
         <ConceptCard
-          eyebrow="Classic SSR"
+          eyebrow="Classic SSR - Server-Side Rendering"
           title="The server serves the meal"
           tone="green"
         >
@@ -65,6 +201,8 @@ export function RenderingTheorySection() {
           useful content it can display immediately.
         </ConceptCard>
       </ConceptGrid>
+
+      <CsrSsrCompareLab />
 
       <div className="rounded-xl border border-black/10 bg-white p-4 dark:border-white/10 dark:bg-zinc-900">
         <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
@@ -235,10 +373,10 @@ export function RenderingTheorySection() {
 
 export function HooksTheorySection() {
   return (
-    <Section id="react-hooks" number={2} title="React Hooks — The Big Two">
+    <Section id="react-hooks" number={3} title="React Hooks — The Big Two">
       <LessonMeta
         slides="9–14"
-        duration="~8 minutes"
+        duration="~7 minutes"
         outcome={
           <>
             Explain what a Hook does and follow the Rules of Hooks before
@@ -305,6 +443,8 @@ export function HooksTheorySection() {
         )}
       />
 
+      <RulesOfHooksLab />
+
       <Warning title="When does a component need “use client”?">
         Today&apos;s Hooks—<code>useState</code> and <code>useEffect</code>—need
         a Client Component. Put <code>&quot;use client&quot;;</code> before
@@ -329,10 +469,10 @@ export function HooksTheorySection() {
 
 export function UseStateTheorySection() {
   return (
-    <Section id="use-state" number={3} title="useState — Component Memory">
+    <Section id="use-state" number={4} title="useState — Component Memory">
       <LessonMeta
         slides="15–18"
-        duration="~12 minutes"
+        duration="~10 minutes"
         outcome={
           <>
             Read a state pair, update it from an event, and explain why the UI
@@ -438,12 +578,12 @@ export function UseEffectTheorySection() {
   return (
     <Section
       id="use-effect"
-      number={4}
+      number={5}
       title="useEffect — Synchronize After Render"
     >
       <LessonMeta
         slides="19–24"
-        duration="~15 minutes"
+        duration="~12 minutes"
         outcome={
           <>
             Choose the right dependency array and avoid accidental repeat work
@@ -516,6 +656,18 @@ export function UseEffectTheorySection() {
         extra development check.
       </ProTip>
 
+      <div className="rounded-xl border border-blue-300 bg-blue-50 p-5 text-center dark:border-blue-800 dark:bg-blue-950/30">
+        <p className="text-xs font-semibold uppercase tracking-wider text-blue-700 dark:text-blue-300">
+          Checkpoint
+        </p>
+        <p className="mt-1 text-xl font-bold text-zinc-900 dark:text-zinc-100">
+          Take a 10–15 minute break
+        </p>
+        <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+          When you return: async fetch, event handlers, then deploy.
+        </p>
+      </div>
+
       <p className="text-sm text-zinc-600 dark:text-zinc-400">
         Reference:{" "}
         <a
@@ -535,12 +687,12 @@ export function AsyncFetchTheorySection() {
   return (
     <Section
       id="async-fetch"
-      number={5}
+      number={6}
       title="Async JavaScript — Fetch, Await, Display"
     >
       <LessonMeta
         slides="25–29"
-        duration="~15 minutes"
+        duration="~12 minutes"
         outcome={
           <>
             Follow a request from <code>fetch()</code> to JSON to loading,
@@ -693,12 +845,12 @@ export function EventHandlersTheorySection() {
   return (
     <Section
       id="event-handlers"
-      number={6}
+      number={7}
       title="Event Handlers — Respond to People"
     >
       <LessonMeta
         slides="30–31"
-        duration="~8 minutes + break"
+        duration="~7 minutes"
         outcome={
           <>
             Connect a browser event to a function without accidentally calling
@@ -772,18 +924,6 @@ export function EventHandlersTheorySection() {
         </table>
       </div>
 
-      <div className="rounded-xl border border-blue-300 bg-blue-50 p-5 text-center dark:border-blue-800 dark:bg-blue-950/30">
-        <p className="text-xs font-semibold uppercase tracking-wider text-blue-700 dark:text-blue-300">
-          Slide 32 · Checkpoint
-        </p>
-        <p className="mt-1 text-xl font-bold text-zinc-900 dark:text-zinc-100">
-          Take a 15-minute break
-        </p>
-        <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-          When you return: Git, GitHub, and your first live deployment.
-        </p>
-      </div>
-
       <p className="text-sm text-zinc-600 dark:text-zinc-400">
         Reference:{" "}
         <a
@@ -803,16 +943,16 @@ export function GitGitHubTheorySection() {
   return (
     <Section
       id="git-github"
-      number={7}
+      number={1}
       title="Git & GitHub — Save and Share"
     >
       <LessonMeta
         slides="33–36"
-        duration="~15 minutes"
+        duration="~12 minutes"
         outcome={
           <>
-            Make a meaningful commit, connect a GitHub repository, and push the
-            project safely.
+            Create a fresh <code>my-profile-card</code> GitHub repository from
+            today&apos;s ZIP and push your personalized starter.
           </>
         }
       />
@@ -827,6 +967,8 @@ export function GitGitHubTheorySection() {
           connect it to deployment tools.
         </ConceptCard>
       </ConceptGrid>
+
+      <GitPipelineLab />
 
       <h3 className="text-lg font-semibold text-[#9B191F] dark:text-red-300">
         1 · Verify Git and your identity
@@ -851,7 +993,7 @@ export function GitGitHubTheorySection() {
           git-scm.com/downloads
         </a>
         , then fully close and reopen VS Code. Ask a facilitator before moving
-        on—the remaining deployment steps depend on Git.
+        on—later deploy steps need Git.
       </Warning>
       <p className="text-sm text-zinc-600 dark:text-zinc-400">
         If either identity value is blank, set it once:
@@ -872,45 +1014,25 @@ export function GitGitHubTheorySection() {
       </ProTip>
 
       <h3 className="text-lg font-semibold text-[#9B191F] dark:text-red-300">
-        2 · Check what Day 1 already set up
+        2 · Turn the ZIP into a Git repository
       </h3>
       <p className="text-sm">
-        Open a terminal in your <code>my-profile-card</code> project. Do not run
-        <code>cd</code> again if the VS Code terminal is already inside that
-        folder.
+        Open a terminal inside your unzipped <code>my-profile-card</code>{" "}
+        folder (the one you personalized on Start Here). Everyone creates a
+        fresh repo from this ZIP today.
       </p>
       <CodeBlock
-        title="Terminal — safe status checks"
-        language="bash"
-        code={snippet(
-          "git status",
-          "git remote -v",
-          "git log -1 --oneline"
-        )}
-      />
-
-      <ProTip title="Already completed the Day 1 homework?">
-        If <code>git status</code> works and <code>git remote -v</code> shows a
-        GitHub URL named <code>origin</code>, your setup is complete. Do not run
-        <code>git init</code> or <code>git remote add</code> again. Continue at
-        “Your daily Git habit” below.
-      </ProTip>
-
-      <h3 className="text-lg font-semibold text-[#9B191F] dark:text-red-300">
-        3 · Only if this is not a Git repository
-      </h3>
-      <CodeBlock
-        title="Terminal — use only when git status says “not a git repository”"
+        title="Terminal"
         language="bash"
         code={snippet(
           "git init",
           "git add .",
-          'git commit -m "build my profile card"'
+          'git commit -m "personalize my profile card starter"'
         )}
       />
 
       <h3 className="text-lg font-semibold text-[#9B191F] dark:text-red-300">
-        4 · Only if no GitHub remote exists
+        3 · Create an empty GitHub repository
       </h3>
       <ol className="list-inside list-decimal space-y-2 text-sm">
         <li>
@@ -925,19 +1047,23 @@ export function GitGitHubTheorySection() {
           </a>
           .
         </li>
-        <li>Name it <code>my-profile-card</code>.</li>
         <li>
-          Public is easiest to share, but it is not required for a personal
-          Vercel project.
+          Name it <code>my-profile-card</code>. If that name is already taken on
+          your account, use <code>my-profile-card-day2</code>.
         </li>
         <li>
-          Do not add a README, <code>.gitignore</code>, or licence—the local
-          project already has files.
+          Public is easiest to share. A private repo still works with Vercel when
+          you grant access—Vercel does <strong>not</strong> require a public
+          repository.
+        </li>
+        <li>
+          Do not add a README, <code>.gitignore</code>, or licence—the ZIP
+          already has files.
         </li>
         <li>Create it, then copy the HTTPS repository URL.</li>
       </ol>
       <CodeBlock
-        title="Terminal — only when git remote -v is empty"
+        title="Terminal"
         language="bash"
         code={snippet(
           "git remote add origin YOUR_REPO_URL",
@@ -947,27 +1073,16 @@ export function GitGitHubTheorySection() {
         )}
       />
 
-      <Warning title="“remote origin already exists”">
-        Do not add it twice. Check <code>git remote -v</code>. If it points to
-        the wrong repository, run{" "}
-        <code>git remote set-url origin YOUR_REPO_URL</code>.
+      <Warning title="Push fails or GitHub asks for a password">
+        Keep coding locally—do not stop the session. Raise your hand; a helper
+        will fix authentication (browser sign-in, GitHub CLI, or a personal
+        access token) before deploy. Never paste your normal GitHub password into
+        the terminal.
       </Warning>
 
-      <Warning title="GitHub asks for a username and password">
-        GitHub does not accept your account password for Git pushes. A modern
-        credential helper normally opens a browser sign-in. If that does not
-        happen, ask a facilitator to help with GitHub CLI, a personal access
-        token, or GitHub Desktop—never paste your normal GitHub password into
-        the terminal. See the{" "}
-        <a
-          href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/about-authentication-to-github"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="font-semibold underline hover:no-underline"
-        >
-          GitHub authentication guide
-        </a>
-        .
+      <Warning title="“remote origin already exists”">
+        Check <code>git remote -v</code>. If it points to the wrong repository,
+        run <code>git remote set-url origin YOUR_REPO_URL</code>.
       </Warning>
 
       <h3 className="text-lg font-semibold text-[#9B191F] dark:text-red-300">
@@ -1038,7 +1153,7 @@ export function VercelTheorySection() {
     <Section id="vercel-deploy" number={8} title="Vercel — Put Your Site Online">
       <LessonMeta
         slides="37–44"
-        duration="~12 minutes"
+        duration="~10 minutes"
         outcome={
           <>
             Import a GitHub repository, make a production deployment, and know
@@ -1061,6 +1176,8 @@ export function VercelTheorySection() {
         Vercel is the company behind Next.js and a hosting platform designed to
         deploy Next.js projects directly from Git providers such as GitHub.
       </p>
+
+      <VercelPipelineLab />
 
       <ConceptGrid>
         <ConceptCard
@@ -1104,8 +1221,9 @@ export function VercelTheorySection() {
         code={snippet("npm run build", "git status", "git push")}
       />
       <p className="text-sm text-zinc-600 dark:text-zinc-400">
-        Fix any local build error first. A clean local build makes the live
-        deployment much easier to troubleshoot.
+        Fix any local build error first. If Git push is still stuck, keep the
+        project building locally and ask a helper—deploy waits for a successful
+        push.
       </p>
 
       <h3 className="text-lg font-semibold text-[#9B191F] dark:text-red-300">
@@ -1125,33 +1243,10 @@ export function VercelTheorySection() {
         ))}
       </ol>
 
-      <div className="grid gap-2 sm:grid-cols-[1fr_auto_1fr_auto_1fr] sm:items-center">
-        <div className="rounded-xl border border-black/10 bg-white p-4 text-center dark:border-white/10 dark:bg-zinc-900">
-          <p className="font-mono text-xs text-[#9B191F] dark:text-red-300">git push</p>
-          <p className="mt-1 text-sm font-semibold">Send a commit</p>
-        </div>
-        <span className="text-center text-zinc-400" aria-hidden="true">
-          <span className="sm:hidden">↓</span>
-          <span className="hidden sm:inline">→</span>
-        </span>
-        <div className="rounded-xl border border-black/10 bg-white p-4 text-center dark:border-white/10 dark:bg-zinc-900">
-          <p className="font-mono text-xs text-[#9B191F] dark:text-red-300">Vercel build</p>
-          <p className="mt-1 text-sm font-semibold">Check and compile</p>
-        </div>
-        <span className="text-center text-zinc-400" aria-hidden="true">
-          <span className="sm:hidden">↓</span>
-          <span className="hidden sm:inline">→</span>
-        </span>
-        <div className="rounded-xl border border-black/10 bg-white p-4 text-center dark:border-white/10 dark:bg-zinc-900">
-          <p className="font-mono text-xs text-[#9B191F] dark:text-red-300">Live URL</p>
-          <p className="mt-1 text-sm font-semibold">Publish the update</p>
-        </div>
-      </div>
-
       <Warning title="Repository missing from the import list?">
         Check that you used the correct GitHub account and granted the Vercel
-        GitHub app access to this repository. Repository access can be adjusted
-        from the GitHub app settings.
+        GitHub app access to this repository. Private repos work when access is
+        granted—public is not required.
       </Warning>
 
       <ProTip title="Dashboard labels can move">

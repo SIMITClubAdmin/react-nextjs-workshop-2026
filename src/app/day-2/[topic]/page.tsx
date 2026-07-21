@@ -14,6 +14,7 @@ import {
   GitGitHubTheorySection,
   HooksTheorySection,
   RenderingTheorySection,
+  StartHereTheorySection,
   UseEffectTheorySection,
   UseStateTheorySection,
   VercelTheorySection,
@@ -26,13 +27,14 @@ import {
 import type { ReactNode } from "react";
 
 const DAY2_CONTENT: Record<string, ReactNode> = {
+  "start-here": <StartHereTheorySection />,
+  "git-github": <GitGitHubTheorySection />,
   "rendering-fundamentals": <RenderingTheorySection />,
   "react-hooks": <HooksTheorySection />,
   "use-state": <UseStateTheorySection />,
   "use-effect": <UseEffectTheorySection />,
   "async-fetch": <AsyncFetchTheorySection />,
   "event-handlers": <EventHandlersTheorySection />,
-  "git-github": <GitGitHubTheorySection />,
   "vercel-deploy": <VercelTheorySection />,
   "hands-on-01": <SkillsToggleHandsOnSection />,
   "hands-on-02": <QuoteCardHandsOnSection />,
@@ -62,7 +64,9 @@ export default async function Day2TopicPage({
     ? "Hands-on practice"
     : topic === "day-2-summary"
       ? "Wrap-up"
-      : "Teaching & theory";
+      : topic === "start-here"
+        ? "Setup"
+        : "Teaching & theory";
 
   return (
     <>
@@ -92,18 +96,25 @@ export default async function Day2TopicPage({
         <div className="mb-8 grid gap-3 rounded-xl border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-950/40 sm:grid-cols-[1fr_auto] sm:items-center">
           <div>
             <p className="text-sm font-medium text-blue-800 dark:text-blue-300">
-              Pick up where Day 1 ended
+              Shared starting line
             </p>
             <p className="mt-1 text-sm text-blue-700 dark:text-blue-400">
-              Open your <strong>my-profile-card</strong> project and run{" "}
+              Download the clean ZIP, run{" "}
+              <code className="rounded bg-blue-100 px-1 font-mono text-xs dark:bg-blue-900">
+                npm install
+              </code>{" "}
+              →{" "}
               <code className="rounded bg-blue-100 px-1 font-mono text-xs dark:bg-blue-900">
                 npm run dev
               </code>
-              . Topics 1–8 are teaching and theory; topics 9–12 are separate
-              hands-on exercises.
+              , personalize your card, then continue through Git and theory
+              before the hands-on build.
             </p>
           </div>
           <div className="flex gap-2 text-center text-xs font-semibold">
+            <span className="rounded-lg bg-white/70 px-3 py-2 text-blue-800 dark:bg-blue-950 dark:text-blue-200">
+              1 setup
+            </span>
             <span className="rounded-lg bg-white/70 px-3 py-2 text-blue-800 dark:bg-blue-950 dark:text-blue-200">
               8 theory
             </span>

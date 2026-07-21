@@ -44,7 +44,7 @@ export function SkillsToggleHandsOnSection() {
       <Day2Checklist
         label="Before you start"
         items={[
-          "Open the same my-profile-card project from Day 1.",
+          "Open the my-profile-card project from Start Here (today’s ZIP).",
           "Run npm run dev.",
           "Open http://localhost:3000/about.",
           "Keep the terminal visible so you can see errors.",
@@ -329,10 +329,10 @@ export function GitSaveHandsOnSection() {
         </li>
         <li className="rounded-xl border border-black/10 bg-white p-4 dark:border-white/10 dark:bg-zinc-900">
           <p className="font-semibold text-zinc-900 dark:text-zinc-100">
-            2 · Stage and review
+            2 · Stage your changes
           </p>
           <p className="mt-1 text-zinc-600 dark:text-zinc-400">
-            Stage the work, then inspect the exact snapshot before committing.
+            Add the files you want in this commit.
           </p>
         </li>
         <li className="rounded-xl border border-black/10 bg-white p-4 dark:border-white/10 dark:bg-zinc-900">
@@ -351,11 +351,9 @@ export function GitSaveHandsOnSection() {
         code={snippet(
           "# Check what changed",
           "git status",
-          "git diff",
           "",
-          "# Stage all project changes and review the snapshot",
+          "# Stage all project changes",
           "git add .",
-          "git diff --staged",
           "",
           "# Commit with a meaningful message, then push",
           'git commit -m "add skills toggle and random quote"',
@@ -522,8 +520,8 @@ export function Day2SummarySection() {
         items={[
           "Bookmark your GitHub repository.",
           "Save your production URL somewhere easy to find.",
-          "Share the URL in Telegram.",
-          "Choose one small improvement to make after the workshop.",
+          "Share the URL with a classmate or in the workshop chat.",
+          "Choose one small improvement to practice after today.",
         ]}
       />
 

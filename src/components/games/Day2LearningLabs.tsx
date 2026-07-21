@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
 type LabShellProps = {
   eyebrow: string;
@@ -35,6 +35,314 @@ function LabShell({
 
 const focusRing =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9B191F] focus-visible:ring-offset-2 dark:focus-visible:ring-red-300 dark:focus-visible:ring-offset-zinc-900";
+
+type RenderMode = "csr" | "ssr";
+
+type TimelineStep = {
+  id: string;
+  actor: "browser" | "server" | "network";
+  label: string;
+  detail: string;
+};
+
+const CSR_STEPS: TimelineStep[] = [
+  {
+    id: "request",
+    actor: "browser",
+    label: "Request page",
+    detail: "Browser asks the server for the URL.",
+  },
+  {
+    id: "shell",
+    actor: "server",
+    label: "Send HTML shell + JS",
+    detail: "Server replies with a nearly empty page and a JavaScript bundle.",
+  },
+  {
+    id: "download",
+    actor: "network",
+    label: "Download & run JS",
+    detail: "Browser downloads JavaScript, then starts building the UI.",
+  },
+  {
+    id: "build",
+    actor: "browser",
+    label: "Cook the meal",
+    detail: "React runs in the browser and constructs the interface.",
+  },
+  {
+    id: "paint",
+    actor: "browser",
+    label: "Useful content appears",
+    detail: "Only now does the user see real headings, text, and layout.",
+  },
+];
+
+const SSR_STEPS: TimelineStep[] = [
+  {
+    id: "request",
+    actor: "browser",
+    label: "Request page",
+    detail: "Browser asks the server for the URL.",
+  },
+  {
+    id: "prepare",
+    actor: "server",
+    label: "Prepare the meal",
+    detail: "Server renders useful HTML for this request.",
+  },
+  {
+    id: "html",
+    actor: "network",
+    label: "Send ready HTML",
+    detail: "Response already contains headings, text, and structure.",
+  },
+  {
+    id: "paint",
+    actor: "browser",
+    label: "Show content immediately",
+    detail: "Browser paints useful content as soon as HTML arrives.",
+  },
+  {
+    id: "hydrate",
+    actor: "browser",
+    label: "Optional: add interactivity",
+    detail: "Later JS can hydrate buttons and state without delaying first paint.",
+  },
+];
+
+function PreviewFrame({
+  mode,
+  stepIndex,
+}: {
+  mode: RenderMode;
+  stepIndex: number;
+}) {
+  const csrCooking = mode === "csr" && stepIndex === 3;
+  const csrWaiting = mode === "csr" && stepIndex < 3;
+  const ssrWaiting = mode === "ssr" && stepIndex < 3;
+  const ready =
+    (mode === "csr" && stepIndex >= 4) || (mode === "ssr" && stepIndex >= 3);
+
+  return (
+    <div className="overflow-hidden rounded-xl border border-zinc-300 bg-white shadow-sm dark:border-zinc-600 dark:bg-zinc-950">
+      <div className="flex items-center gap-1.5 border-b border-zinc-200 bg-zinc-100 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900">
+        <span className="h-2.5 w-2.5 rounded-full bg-zinc-300 dark:bg-zinc-600" />
+        <span className="h-2.5 w-2.5 rounded-full bg-zinc-300 dark:bg-zinc-600" />
+        <span className="h-2.5 w-2.5 rounded-full bg-zinc-300 dark:bg-zinc-600" />
+        <span className="ml-2 font-mono text-[10px] text-zinc-500">
+          localhost:3000/about
+        </span>
+      </div>
+      <div className="relative flex min-h-44 items-center justify-center p-4">
+        {(csrWaiting || ssrWaiting) && !csrCooking && (
+          <div className="w-full space-y-3" aria-hidden>
+            <div className="h-3 w-1/3 animate-pulse rounded bg-zinc-200 dark:bg-zinc-800" />
+            <div className="h-16 animate-pulse rounded-lg bg-zinc-100 dark:bg-zinc-900" />
+            <p className="text-center text-xs text-zinc-500 dark:text-zinc-400">
+              {mode === "csr"
+                ? stepIndex <= 1
+                  ? "Empty shell from the server…"
+                  : "Downloading / running JavaScript…"
+                : stepIndex === 0
+                  ? "Waiting for the server…"
+                  : stepIndex === 1
+                    ? "Server preparing the meal…"
+                    : "Useful HTML on the way…"}
+            </p>
+          </div>
+        )}
+        {csrCooking && (
+          <div className="flex flex-col items-center gap-2 text-center">
+            <div
+              className="h-8 w-8 animate-spin rounded-full border-2 border-[#9B191F] border-t-transparent"
+              aria-hidden
+            />
+            <p className="text-xs font-medium text-zinc-600 dark:text-zinc-300">
+              Browser is cooking the UI…
+            </p>
+          </div>
+        )}
+        {ready && (
+          <article className="w-full rounded-lg border border-emerald-200 bg-emerald-50/80 p-4 transition-opacity duration-500 dark:border-emerald-800 dark:bg-emerald-950/40">
+            <p className="text-xs font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+              Profile ready
+            </p>
+            <p className="mt-1 text-base font-semibold text-zinc-900 dark:text-zinc-100">
+              Alex · Computer Science Student
+            </p>
+            <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+              Learning React and Next.js!
+            </p>
+            {mode === "ssr" && stepIndex >= 4 && (
+              <p className="mt-2 text-xs text-emerald-800 dark:text-emerald-200">
+                Content was already visible — JS only adds interactivity.
+              </p>
+            )}
+          </article>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export function CsrSsrCompareLab() {
+  const [mode, setMode] = useState<RenderMode>("csr");
+  const [stepIndex, setStepIndex] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  const steps = mode === "csr" ? CSR_STEPS : SSR_STEPS;
+
+  function clearTimers() {
+    timers.current.forEach(clearTimeout);
+    timers.current = [];
+  }
+
+  useEffect(() => () => clearTimers(), []);
+
+  useEffect(() => {
+    play("csr");
+    // Auto-play Classic CSR once when the lab mounts so the comparison is visible immediately.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function play(nextMode: RenderMode = mode) {
+    clearTimers();
+    setMode(nextMode);
+    setStepIndex(0);
+    setPlaying(true);
+
+    const sequence = nextMode === "csr" ? CSR_STEPS : SSR_STEPS;
+    sequence.forEach((_, index) => {
+      timers.current.push(
+        setTimeout(() => {
+          setStepIndex(index);
+          if (index === sequence.length - 1) {
+            setPlaying(false);
+          }
+        }, index * 900),
+      );
+    });
+  }
+
+  function chooseMode(nextMode: RenderMode) {
+    if (nextMode === mode && !playing) return;
+    play(nextMode);
+  }
+
+  return (
+    <LabShell
+      eyebrow="Animation lab"
+      title="CSR vs SSR — watch who cooks the meal"
+      description="Play each path. CSR waits for the browser to build the page. SSR sends useful HTML first, so content can appear sooner."
+    >
+      <div className="flex flex-wrap gap-2" role="tablist" aria-label="Rendering mode">
+        {(
+          [
+            { id: "csr", label: "Classic CSR", sub: "Browser cooks" },
+            { id: "ssr", label: "Classic SSR", sub: "Server serves" },
+          ] as const
+        ).map((option) => {
+          const active = mode === option.id;
+          return (
+            <button
+              key={option.id}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              onClick={() => chooseMode(option.id)}
+              className={`${focusRing} min-w-36 flex-1 rounded-xl border px-4 py-3 text-left transition-colors sm:flex-none ${
+                active
+                  ? option.id === "csr"
+                    ? "border-blue-500 bg-blue-50 dark:border-blue-400 dark:bg-blue-950/40"
+                    : "border-emerald-500 bg-emerald-50 dark:border-emerald-400 dark:bg-emerald-950/40"
+                  : "border-zinc-200 bg-zinc-50 hover:border-zinc-300 dark:border-zinc-700 dark:bg-zinc-950/50"
+              }`}
+            >
+              <span className="block text-sm font-semibold text-zinc-950 dark:text-white">
+                {option.label}
+              </span>
+              <span className="mt-0.5 block text-xs text-zinc-500 dark:text-zinc-400">
+                {option.sub}
+              </span>
+            </button>
+          );
+        })}
+        <button
+          type="button"
+          onClick={() => play(mode)}
+          disabled={playing}
+          className={`${focusRing} rounded-xl bg-[#9B191F] px-4 py-3 text-sm font-semibold text-white hover:bg-[#7f1419] disabled:cursor-wait disabled:opacity-60 dark:bg-red-700 dark:hover:bg-red-600`}
+        >
+          {playing ? "Playing…" : "Replay"}
+        </button>
+      </div>
+
+      <div className="mt-5 grid gap-5 lg:grid-cols-[1.05fr_0.95fr]">
+        <ol className="space-y-2" aria-label={`${mode.toUpperCase()} timeline`}>
+          {steps.map((step, index) => {
+            const active = stepIndex === index;
+            const done = stepIndex > index;
+            return (
+              <li
+                key={step.id}
+                aria-current={active ? "step" : undefined}
+                className={`rounded-xl border px-3 py-3 transition-colors ${
+                  active
+                    ? "border-[#9B191F] bg-[#9B191F]/5 dark:border-red-400 dark:bg-[#9B191F]/20"
+                    : done
+                      ? "border-emerald-300 bg-emerald-50/80 dark:border-emerald-800 dark:bg-emerald-950/30"
+                      : "border-zinc-200 bg-zinc-50 opacity-70 dark:border-zinc-700 dark:bg-zinc-950/50"
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  <span
+                    className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+                      active
+                        ? "bg-[#9B191F] text-white"
+                        : done
+                          ? "bg-emerald-600 text-white"
+                          : "bg-zinc-200 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300"
+                    }`}
+                  >
+                    {done ? "✓" : index + 1}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-zinc-950 dark:text-white">
+                      {step.label}
+                    </p>
+                    <p className="mt-0.5 text-xs leading-5 text-zinc-600 dark:text-zinc-400">
+                      <span className="font-medium capitalize text-zinc-500 dark:text-zinc-500">
+                        {step.actor}:{" "}
+                      </span>
+                      {step.detail}
+                    </p>
+                  </div>
+                </div>
+              </li>
+            );
+          })}
+        </ol>
+
+        <div>
+          <PreviewFrame mode={mode} stepIndex={stepIndex} />
+          <p className="mt-3 text-sm leading-6 text-zinc-600 dark:text-zinc-400" aria-live="polite">
+            <strong className="text-zinc-900 dark:text-zinc-100">
+              Now:{" "}
+            </strong>
+            {steps[Math.min(stepIndex, steps.length - 1)]?.detail}
+          </p>
+          <p className="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-900 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-100">
+            Next.js App Router is closer to the SSR idea for the first paint,
+            then adds Client Components where interactivity is needed — not pure
+            classic CSR for the whole page.
+          </p>
+        </div>
+      </div>
+    </LabShell>
+  );
+}
 
 type RenderingNeedId =
   | "interaction"
@@ -821,6 +1129,317 @@ export function EventHandlerPlayground() {
       >
         Reset playground
       </button>
+    </LabShell>
+  );
+}
+
+const HOOK_SNIPPETS = [
+  {
+    id: "top-level",
+    label: "Top-level useState",
+    code: "const [open, setOpen] = useState(false);",
+    valid: true,
+    reason: "Called at the top level every render — React can track the order.",
+  },
+  {
+    id: "inside-if",
+    label: "Hook inside if",
+    code: "if (ready) {\n  const [likes, setLikes] = useState(0);\n}",
+    valid: false,
+    reason: "Conditional Hooks change call order between renders.",
+  },
+  {
+    id: "after-return",
+    label: "Hook after early return",
+    code: "if (!user) return null;\nconst [tab, setTab] = useState(\"home\");",
+    valid: false,
+    reason: "An early return can skip the Hook on some renders.",
+  },
+  {
+    id: "custom-hook",
+    label: "Custom Hook",
+    code: "function useToggle(start) {\n  return useState(start);\n}",
+    valid: true,
+    reason: "Custom Hooks may call other Hooks — their names start with use.",
+  },
+  {
+    id: "utility",
+    label: "Ordinary utility",
+    code: "function formatName(name) {\n  const [value] = useState(name);\n  return value;\n}",
+    valid: false,
+    reason: "Regular utilities are not React components or custom Hooks.",
+  },
+] as const;
+
+export function RulesOfHooksLab() {
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const selected = HOOK_SNIPPETS.find((item) => item.id === selectedId) ?? null;
+
+  return (
+    <LabShell
+      eyebrow="Rules checker"
+      title="Which Hook calls are allowed?"
+      description="Pick a snippet. React needs Hooks called in the same order on every render, so conditionals and early returns break that contract."
+    >
+      <div className="grid gap-3 lg:grid-cols-2">
+        {HOOK_SNIPPETS.map((item) => {
+          const active = selectedId === item.id;
+          return (
+            <button
+              key={item.id}
+              type="button"
+              aria-pressed={active}
+              onClick={() => setSelectedId(item.id)}
+              className={`${focusRing} rounded-xl border p-4 text-left transition-colors motion-reduce:transition-none ${
+                active
+                  ? "border-[#9B191F] bg-[#9B191F]/5 dark:border-red-400 dark:bg-[#9B191F]/20"
+                  : "border-zinc-200 bg-zinc-50 hover:border-zinc-300 dark:border-zinc-700 dark:bg-zinc-950/50 dark:hover:border-zinc-600"
+              }`}
+            >
+              <span className="text-sm font-semibold text-zinc-950 dark:text-white">
+                {item.label}
+              </span>
+              <pre className="mt-3 overflow-x-auto rounded-lg bg-zinc-950 p-3 font-mono text-xs leading-5 text-zinc-100">
+                <code>{item.code}</code>
+              </pre>
+            </button>
+          );
+        })}
+      </div>
+
+      <div
+        className="mt-5 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-900"
+        aria-live="polite"
+      >
+        {selected ? (
+          <>
+            <p
+              className={`text-sm font-bold ${
+                selected.valid
+                  ? "text-emerald-700 dark:text-emerald-300"
+                  : "text-amber-800 dark:text-amber-300"
+              }`}
+            >
+              {selected.valid ? "✅ Allowed" : "❌ Breaks the Rules of Hooks"}
+            </p>
+            <p className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-300">
+              {selected.reason}
+            </p>
+          </>
+        ) : (
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            Select a snippet to check it.
+          </p>
+        )}
+      </div>
+    </LabShell>
+  );
+}
+
+const GIT_STEPS = [
+  {
+    id: "edit",
+    label: "Edit files",
+    detail: "Change code in VS Code. Git notices which files differ.",
+  },
+  {
+    id: "stage",
+    label: "git add .",
+    detail: "Stage the changes you want in the next snapshot.",
+  },
+  {
+    id: "commit",
+    label: "git commit",
+    detail: "Save a local snapshot with a clear message.",
+  },
+  {
+    id: "push",
+    label: "git push",
+    detail: "Upload commits to GitHub so others (and Vercel) can see them.",
+  },
+] as const;
+
+export function GitPipelineLab() {
+  const [stepIndex, setStepIndex] = useState(0);
+  const complete = stepIndex >= GIT_STEPS.length;
+
+  return (
+    <LabShell
+      eyebrow="Git pipeline"
+      title="From laptop change to GitHub"
+      description="Advance one step at a time. This is the daily habit you will repeat after every meaningful feature."
+    >
+      <ol className="grid gap-2 sm:grid-cols-4" aria-label="Git workflow steps">
+        {GIT_STEPS.map((step, index) => {
+          const active = stepIndex === index;
+          const done = stepIndex > index;
+          return (
+            <li
+              key={step.id}
+              aria-current={active ? "step" : undefined}
+              className={`rounded-xl border px-3 py-3 ${
+                active
+                  ? "border-[#9B191F] bg-[#9B191F]/5 dark:border-red-400 dark:bg-[#9B191F]/20"
+                  : done
+                    ? "border-emerald-300 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950/30"
+                    : "border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-950/50"
+              }`}
+            >
+              <span className="text-xs font-bold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                Step {index + 1}
+              </span>
+              <p className="mt-1 font-mono text-sm font-semibold text-zinc-950 dark:text-white">
+                {step.label}
+              </p>
+            </li>
+          );
+        })}
+      </ol>
+
+      <div className="mt-4 rounded-xl border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-950/30" aria-live="polite">
+        {complete ? (
+          <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+            Done. GitHub now has your latest snapshot. Later, Vercel can build from that push.
+          </p>
+        ) : (
+          <>
+            <p className="text-xs font-bold uppercase tracking-wide text-blue-700 dark:text-blue-300">
+              Now
+            </p>
+            <p className="mt-1 text-base font-semibold text-zinc-950 dark:text-white">
+              {GIT_STEPS[stepIndex].label}
+            </p>
+            <p className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-300">
+              {GIT_STEPS[stepIndex].detail}
+            </p>
+          </>
+        )}
+      </div>
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        <button
+          type="button"
+          disabled={complete}
+          onClick={() => setStepIndex((current) => Math.min(current + 1, GIT_STEPS.length))}
+          className={`${focusRing} rounded-lg bg-[#9B191F] px-4 py-2 text-sm font-semibold text-white hover:bg-[#7f1419] disabled:cursor-not-allowed disabled:opacity-45 dark:bg-red-700 dark:hover:bg-red-600`}
+        >
+          {stepIndex === 0 ? "Start pipeline" : "Next step"}
+        </button>
+        <button
+          type="button"
+          onClick={() => setStepIndex(0)}
+          className={`${focusRing} rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800`}
+        >
+          Restart
+        </button>
+      </div>
+    </LabShell>
+  );
+}
+
+const VERCEL_STEPS = [
+  {
+    id: "push",
+    label: "git push",
+    detail: "Your commit lands on GitHub.",
+  },
+  {
+    id: "detect",
+    label: "Vercel detects",
+    detail: "The connected project notices the new commit on main.",
+  },
+  {
+    id: "build",
+    label: "Build",
+    detail: "Vercel installs dependencies and runs the production build.",
+  },
+  {
+    id: "live",
+    label: "Live URL",
+    detail: "A public HTTPS URL updates when the build succeeds.",
+  },
+] as const;
+
+export function VercelPipelineLab() {
+  const [stepIndex, setStepIndex] = useState(0);
+  const complete = stepIndex >= VERCEL_STEPS.length;
+
+  return (
+    <LabShell
+      eyebrow="Deploy pipeline"
+      title="Push → build → live URL"
+      description="After the project is connected once, every meaningful push can become a new production deployment."
+    >
+      <ol className="grid gap-2 sm:grid-cols-4" aria-label="Vercel deploy steps">
+        {VERCEL_STEPS.map((step, index) => {
+          const active = stepIndex === index;
+          const done = stepIndex > index;
+          return (
+            <li
+              key={step.id}
+              aria-current={active ? "step" : undefined}
+              className={`rounded-xl border px-3 py-3 ${
+                active
+                  ? "border-[#9B191F] bg-[#9B191F]/5 dark:border-red-400 dark:bg-[#9B191F]/20"
+                  : done
+                    ? "border-emerald-300 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950/30"
+                    : "border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-950/50"
+              }`}
+            >
+              <span className="text-xs font-bold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                {index + 1}
+              </span>
+              <p className="mt-1 text-sm font-semibold text-zinc-950 dark:text-white">
+                {step.label}
+              </p>
+            </li>
+          );
+        })}
+      </ol>
+
+      <div
+        className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-800 dark:bg-emerald-950/30"
+        aria-live="polite"
+      >
+        {complete ? (
+          <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+            Your site is live. Open the production URL and test{" "}
+            <code>/</code> and <code>/about</code>.
+          </p>
+        ) : (
+          <>
+            <p className="text-xs font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+              Pipeline
+            </p>
+            <p className="mt-1 text-base font-semibold text-zinc-950 dark:text-white">
+              {VERCEL_STEPS[stepIndex].label}
+            </p>
+            <p className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-300">
+              {VERCEL_STEPS[stepIndex].detail}
+            </p>
+          </>
+        )}
+      </div>
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        <button
+          type="button"
+          disabled={complete}
+          onClick={() =>
+            setStepIndex((current) => Math.min(current + 1, VERCEL_STEPS.length))
+          }
+          className={`${focusRing} rounded-lg bg-[#9B191F] px-4 py-2 text-sm font-semibold text-white hover:bg-[#7f1419] disabled:cursor-not-allowed disabled:opacity-45 dark:bg-red-700 dark:hover:bg-red-600`}
+        >
+          {stepIndex === 0 ? "Start deploy flow" : "Next step"}
+        </button>
+        <button
+          type="button"
+          onClick={() => setStepIndex(0)}
+          className={`${focusRing} rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800`}
+        >
+          Restart
+        </button>
+      </div>
     </LabShell>
   );
 }

@@ -105,44 +105,50 @@ export const DAY1_TOPICS: CurriculumTopic[] = [
 
 export const DAY2_TOPICS: CurriculumTopic[] = [
   {
+    id: "start-here",
+    label: "Start Here",
+    group: "Setup",
+    navNumber: "0",
+  },
+  {
+    id: "git-github",
+    label: "Git & GitHub",
+    group: "Teaching & theory",
+    navNumber: "1",
+  },
+  {
     id: "rendering-fundamentals",
     label: "Rendering — Server & Client",
     group: "Teaching & theory",
-    navNumber: "1",
+    navNumber: "2",
   },
   {
     id: "react-hooks",
     label: "React Hooks — The Big Two",
     group: "Teaching & theory",
-    navNumber: "2",
+    navNumber: "3",
   },
   {
     id: "use-state",
     label: "useState — Component Memory",
     group: "Teaching & theory",
-    navNumber: "3",
+    navNumber: "4",
   },
   {
     id: "use-effect",
     label: "useEffect — Dependencies",
     group: "Teaching & theory",
-    navNumber: "4",
+    navNumber: "5",
   },
   {
     id: "async-fetch",
     label: "Async JavaScript & Fetch",
     group: "Teaching & theory",
-    navNumber: "5",
+    navNumber: "6",
   },
   {
     id: "event-handlers",
     label: "React Event Handlers",
-    group: "Teaching & theory",
-    navNumber: "6",
-  },
-  {
-    id: "git-github",
-    label: "Git & GitHub",
     group: "Teaching & theory",
     navNumber: "7",
   },
